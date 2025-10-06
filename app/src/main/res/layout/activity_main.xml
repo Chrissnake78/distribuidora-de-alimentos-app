@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Título -->
+    <TextView
+        android:text="@string/titulo_radianes"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Campo para ingresar los grados -->
+    <EditText
+        android:id="@+id/entradaGrados"
+        android:hint="@string/hint_grados"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Botón para calcular -->
+    <Button
+        android:id="@+id/btnCalcular"
+        android:text="@string/btn_calcular"
+        android:layout_marginTop="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Botón para probar errores (solo para Logcat) -->
+    <Button
+        android:id="@+id/btnErrores"
+        android:text="@string/btn_errores"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Línea separadora -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="#DDDDDD" />
+
+    <!-- Resultado en radianes -->
+    <TextView
+        android:id="@+id/salidaResultado"
+        android:text="@string/resultado_radianes"
+        android:textSize="16sp"
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Mensaje con error o resultado -->
+    <TextView
+        android:id="@+id/salidaMensaje"
+        android:text=""
+        android:layout_marginTop="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Distribuidora de Alimentos</string>
+
+    <!-- Pantalla de radianes (si la usas) -->
+    <string name="titulo_radianes">Distribuidora de Alimentos — Conversor a Radianes</string>
+    <string name="hint_grados">Ingresar grados (por ej. 180)</string>
+    <string name="btn_calcular">Calcular</string>
+    <string name="btn_errores">Probar errores (para informe)</string>
+    <string name="resultado_radianes">Resultado en radianes: —</string>
+
+    <!-- Login / Menú -->
+    <string name="titulo_login">Iniciar sesión</string>
+    <string name="correo_hint">Correo</string>
+    <string name="clave_hint">Contraseña</string>
+    <string name="btn_entrar">Entrar</string>
+    <string name="titulo_menu">Menú principal</string>
+    <string name="estado_espera">Esperando ubicación…</string>
+</resources>

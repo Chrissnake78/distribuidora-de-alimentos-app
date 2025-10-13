@@ -46,7 +46,7 @@ class RegisterActivity : AppCompatActivity() {
 
         // Volver al login
         btnVolverLogin.setOnClickListener {
-            startActivity(Intent(this, com.christian.distribuidoradealimentosapp.LoginActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }

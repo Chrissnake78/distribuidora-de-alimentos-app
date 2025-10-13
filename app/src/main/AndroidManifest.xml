@@ -1,60 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.christian.distribuidoradealimentosapp">
 
-    <!-- Permisos básicos y ubicación -->
+    <!-- 🔐 Permisos requeridos -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- 🔹 Nuevos permisos agregados -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <!-- LOGIN (launcher) -->
+        <!-- 🔸 ACTIVIDADES EXISTENTES -->
+        <activity android:name=".MenuActivity" />
+        <activity android:name=".ui.CatalogActivity" />
+        <activity android:name=".ui.CartActivity" />
+        <activity android:name=".ui.RegisterActivity" />
+        <activity android:name=".ui.MapActivity" />
+
+        <!-- 🔸 LOGIN PRINCIPAL -->
         <activity
-            android:name="com.christian.distribuidoradealimentosapp.LoginActivity"
-            android:exported="true">
+            android:name=".ui.LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- MENÚ -->
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.MenuActivity"
-            android:exported="false" />
-
-        <!-- (Opcionales) si existen en tu proyecto -->
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.InicioActivity"
-            android:exported="false" />
-
-        <!-- PANTALLAS bajo el paquete ui -->
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.ui.CatalogActivity"
-            android:exported="false" />
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.ui.CartActivity"
-            android:exported="false" />
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.ui.TemperatureActivity"
-            android:exported="false" />
-
-        <activity
-            android:name="com.christian.distribuidoradealimentosapp.ui.RegisterActivity"
-            android:exported="false" />
+        <!-- 🔸 MONITOREO DE TEMPERATURA (Semana 8) -->
+        <activity android:name=".ui.TemperatureActivity" />
+        <activity android:name=".ui.ConfigTemperatureActivity" />
 
     </application>
 </manifest>

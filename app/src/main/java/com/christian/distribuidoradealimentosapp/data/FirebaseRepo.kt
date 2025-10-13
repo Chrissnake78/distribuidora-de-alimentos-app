@@ -21,15 +21,20 @@ object FirebaseRepo {
     fun carritoRef(): DatabaseReference =
         root.child("carritos").child(uid())
 
-    /** Órdenes del usuario (opcional) */
-    fun ordersRef(): DatabaseReference =
-        root.child("orders").child(uid())
+    fun agregarAlCarrito(producto: Product) {
+        val ref = carritoRef().push()
+        ref.setValue(producto)
 
-    /** 🔥 Configuración de temperatura (límite) */
-    fun configTempRef(): DatabaseReference =
-        root.child("config").child("tempMaxC")     // por ej. 4 (°C)
+        /** Órdenes del usuario (opcional) */
+        fun ordersRef(): DatabaseReference =
+            root.child("orders").child(uid())
 
-    /** 🔥 Sensor de temperatura “en vivo” */
-    fun sensorTempRef(): DatabaseReference =
-        root.child("sensors").child("temperatureC") // por ej. 3.7
+        /** 🔥 Configuración de temperatura (límite) */
+        fun configTempRef(): DatabaseReference =
+            root.child("config").child("tempMaxC")     // por ej. 4 (°C)
+
+        /** 🔥 Sensor de temperatura “en vivo” */
+        fun sensorTempRef(): DatabaseReference =
+            root.child("sensors").child("temperatureC") // por ej. 3.7
+    }
 }

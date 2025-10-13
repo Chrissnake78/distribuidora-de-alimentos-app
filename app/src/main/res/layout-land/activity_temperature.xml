@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="#101010">
+
+    <!-- 🔹 Columna izquierda: lectura -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_vertical|center_horizontal"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:id="@+id/txtLectura"
+            android:text="Temperatura actual: --.- °C"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#444"
+            android:layout_marginVertical="16dp" />
+    </LinearLayout>
+
+    <!-- 🔹 Columna derecha: entradas y botones -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="16dp">
+
+        <!-- Temperatura mínima -->
+        <EditText
+            android:id="@+id/txtMin"
+            android:hint="Temperatura mínima (°C)"
+            android:inputType="numberDecimal"
+            android:textColorHint="#AAAAAA"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Temperatura máxima -->
+        <EditText
+            android:id="@+id/txtMax"
+            android:hint="Temperatura máxima (°C)"
+            android:inputType="numberDecimal"
+            android:textColorHint="#AAAAAA"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <!-- Botón Guardar -->
+        <Button
+            android:id="@+id/btnGuardar"
+            android:text="Guardar rangos"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:backgroundTint="#FF9800"
+            android:textColor="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" />
+
+        <!-- Botón Silenciar alarma -->
+        <Button
+            android:id="@+id/btnSilenciar"
+            android:text="Silenciar alarma"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:backgroundTint="#FF5722"
+            android:textColor="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,9 +1,11 @@
 package com.christian.distribuidoradealimentosapp.data
 
 data class CartItem(
-    var id: String = "",
-    var nombre: String = "",
-    var cantidad: Int = 0,
-    var precio: Int = 0,
-    var subtotal: Int = 0
-)
+    val id: String = "",
+    val nombre: String = "",
+    val precio: Double = 0.0,
+    var cantidad: Int = 1 // 🔹 nueva propiedad
+) {
+    // 🔹 Subtotal automático
+    fun subtotal(): Double = precio * cantidad
+}

@@ -25,6 +25,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"/>
 
+        <Button
+            android:id="@+id/btnLimpiarCarrito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Vaciar carrito"
+            android:layout_marginTop="8dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerCarrito"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
         <TextView
             android:id="@+id/txtResultadoDespacho"
             android:layout_width="match_parent"

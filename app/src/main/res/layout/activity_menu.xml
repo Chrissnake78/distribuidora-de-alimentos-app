@@ -11,33 +11,45 @@
         android:textSize="22sp"
         android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp" />
 
     <Button
         android:id="@+id/btnIrCarrito"
         android:text="Ir a Carrito / Despacho"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" />
-
-    <Button
-        android:id="@+id/btnLogout"
-        android:text="Cerrar sesión"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" />
+        android:layout_marginBottom="16dp"
+        android:padding="12dp"/>
 
     <Button
         android:id="@+id/btnCatalogo"
         android:text="Ver Catálogo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" />
+        android:layout_marginBottom="16dp"
+        android:padding="12dp"/>
 
     <Button
         android:id="@+id/btnTemp"
         android:text="Temperatura (Frío)"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" />
+        android:layout_marginBottom="16dp"
+        android:padding="12dp"/>
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:text="Cerrar sesión"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp"/>
+
+    <Button
+        android:id="@+id/btnMapa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mapa (mi ubicación)" />
+
 </LinearLayout>

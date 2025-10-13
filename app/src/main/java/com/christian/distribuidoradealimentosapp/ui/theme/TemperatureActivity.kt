@@ -3,9 +3,10 @@ package com.christian.distribuidoradealimentosapp.ui
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.RingtoneManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -14,59 +15,48 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.christian.distribuidoradealimentosapp.R
 import com.christian.distribuidoradealimentosapp.data.SettingsDataStore
 import com.google.firebase.database.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class TemperatureActivity : AppCompatActivity() {
 
+    private lateinit var database: DatabaseReference
     private lateinit var txtLectura: TextView
     private lateinit var txtMin: EditText
     private lateinit var txtMax: EditText
     private lateinit var btnGuardar: Button
-    private lateinit var btnSimular: Button
-    private lateinit var database: DatabaseReference
-    private lateinit var settings: SettingsDataStore
+    private lateinit var btnSilenciar: Button
 
-    // Rango por defecto exigido por la pauta
+    private lateinit var settings: SettingsDataStore
     private var minC = 2.0
     private var maxC = 8.0
+    private var mediaPlayer: MediaPlayer? = null
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted) {
-            Toast.makeText(this, "Permiso de notificaciones denegado", Toast.LENGTH_SHORT).show()
-        }
-    }
+    private val CHANNEL_ID = "alertasTemp"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_temperature)
 
-        // Referencias UI
+        // Views del XML (VERTICAL y LAND llevan los mismos IDs)
         txtLectura = findViewById(R.id.txtLectura)
         txtMin = findViewById(R.id.txtMin)
         txtMax = findViewById(R.id.txtMax)
         btnGuardar = findViewById(R.id.btnGuardar)
-        btnSimular = findViewById(R.id.btnSimular)
+        btnSilenciar = findViewById(R.id.btnSilenciar)
 
-        // DataStore
         settings = SettingsDataStore(this)
 
-        // Canal y permiso de notificaciones
-        createNotificationChannel()
-        requestPostNotificationsIfNeeded()
-
-        // Cargar límites guardados (o defaults 2–8)
+        // Carga rangos guardados
         lifecycleScope.launch {
             minC = settings.minTemp.first()
             maxC = settings.maxTemp.first()
@@ -74,28 +64,34 @@ class TemperatureActivity : AppCompatActivity() {
             txtMax.setText(maxC.toString())
         }
 
-        // LECTURA DESDE FIREBASE EN FAHRENHEIT (exigencia de pauta)
-        // Ruta exacta esperada: sensors/temperatureF (número Double)
+        pedirPermisoNotificaciones()
+        crearCanal()
+
         database = FirebaseDatabase.getInstance().getReference("sensors/temperatureF")
 
+        // Lectura en tiempo real
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val tempF = snapshot.getValue(Double::class.java) ?: return
-                val tempC = (tempF - 32.0) * (5.0 / 9.0) // Conversión °F -> °C
-                verificarRangoYMostrar(tempC)
-            }
+                val tempC = (tempF - 32.0) * (5.0 / 9.0)
+                txtLectura.text = "Temperatura actual: %.1f °C".format(tempC)
 
+                if (tempC < minC || tempC > maxC) {
+                    alarma()
+                }
+            }
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@TemperatureActivity, "Error al leer temperatura", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TemperatureActivity,
+                    "Error al leer temperatura: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
 
-        // Guardar nuevos límites en DataStore
+        // Guardar nuevos rangos
         btnGuardar.setOnClickListener {
             val nuevoMin = txtMin.text.toString().toDoubleOrNull()
             val nuevoMax = txtMax.text.toString().toDoubleOrNull()
-            if (nuevoMin == null || nuevoMax == null) {
-                Toast.makeText(this, "Ingresa valores válidos", Toast.LENGTH_SHORT).show()
+            if (nuevoMin == null || nuevoMax == null || nuevoMin >= nuevoMax) {
+                Toast.makeText(this, "Valores no válidos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             lifecycleScope.launch {
@@ -103,73 +99,92 @@ class TemperatureActivity : AppCompatActivity() {
                 settings.saveMaxTemp(nuevoMax)
                 minC = nuevoMin
                 maxC = nuevoMax
-                Toast.makeText(this@TemperatureActivity, "Rangos guardados en el teléfono", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TemperatureActivity, "Rangos guardados", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Simular lecturas remotas en °F (para demo)
-        btnSimular.setOnClickListener {
-            val tempF = Random.nextDouble(30.0, 70.0) // 30–70 °F
-            database.setValue(tempF)
-        }
+        // Silenciar manual
+        btnSilenciar.setOnClickListener { detenerAlarma() }
     }
 
-    private fun verificarRangoYMostrar(tempC: Double) {
-        val enRango = tempC in minC..maxC
-
-        // Texto claro (corregimos el error de "...emp")
-        val texto = buildString {
-            append("Temperatura actual: ${"%.1f".format(tempC)} °C\n")
-            append("Rango permitido: ${"%.1f".format(minC)} - ${"%.1f".format(maxC)} °C\n")
-            append(if (enRango) "✅ Dentro del rango" else "⚠️ ¡Fuera del rango!")
-        }
-        txtLectura.text = texto
-
-        if (!enRango) lanzarAlerta(tempC)
-    }
-
-    private fun lanzarAlerta(tempC: Double) {
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val sonido = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-        val builder = NotificationCompat.Builder(this, "alerta_temp")
-            .setSmallIcon(android.R.drawable.stat_sys_warning) // Ícono seguro presente en Android
-            .setContentTitle("ALERTA DE TEMPERATURA")
-            .setContentText("Actual: ${"%.1f".format(tempC)} °C (fuera del rango)")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSound(sonido)
-            .setVibrate(longArrayOf(0, 500, 1000, 500))
-
-        manager.notify(1001, builder.build())
-
-        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    private fun alarma() {
+        // Vibrar
+        val vib = getSystemService(VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+            vib.vibrate(VibrationEffect.createOneShot(800, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(1000)
+            vib.vibrate(800)
         }
-    }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "alerta_temp",
-                "Alertas de Temperatura",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun requestPostNotificationsIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        // Sonido propio (raw/alerta.mp3), en bucle hasta silenciar
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.alerta).apply {
+                isLooping = true
+                start()
             }
         }
+
+        // Notificación visual
+        mostrarNotificacion()
+    }
+
+    private fun detenerAlarma() {
+        mediaPlayer?.run {
+            if (isPlaying) stop()
+            release()
+        }
+        mediaPlayer = null
+        Toast.makeText(this, "Alarma silenciada", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun mostrarNotificacion() {
+        val intent = Intent(this, TemperatureActivity::class.java)
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, flags)
+
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("⚠️ Alerta de Temperatura")
+            .setContentText("Temperatura fuera del rango establecido")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(this)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ActivityCompat.checkSelfPermission(
+                    this@TemperatureActivity, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                notify(1001, builder.build())
+            }
+        }
+    }
+
+    private fun pedirPermisoNotificaciones() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+        }
+    }
+
+    private fun crearCanal() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val canal = NotificationChannel(
+                CHANNEL_ID, "Alertas de Temperatura",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nm.createNotificationChannel(canal)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        detenerAlarma()
     }
 }
